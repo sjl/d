@@ -23,6 +23,7 @@ INDEX_PRE = '''\
     <body class="index">
         <div class="wrap">
             <header><h1><a href="">{project_title}</a></h1></header>
+                <div class="markdown">
 '''
 CONTENT_PRE = '''\
 <!DOCTYPE html>
