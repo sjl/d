@@ -1,10 +1,48 @@
 import sys, os, shutil
-import markdown
+import re
+import misaka
 from pyquery import PyQuery as pq
+from pygments import highlight
+from pygments.formatters import HtmlFormatter
+from pygments.lexers import get_lexer_by_name
+
+
+_re_codeblock = re.compile(r'<pre(?: lang="([a-z0-9]+)")?><code'
+    '(?: class="([a-z0-9]+).*?")?>(.*?)</code></pre>',
+    re.IGNORECASE | re.DOTALL)
+
+
+def highlight_code(html):
+    def _unescape_html(html):
+        html = html.replace('&lt;', '<')
+        html = html.replace('&gt;', '>')
+        html = html.replace('&amp;', '&')
+        return html.replace('"', '"')
+    def _highlight_match(match):
+        language, classname, code = match.groups()
+        if (language or classname) is None:
+            return match.group(0)
+        return highlight(_unescape_html(code),
+            get_lexer_by_name(language or classname),
+            HtmlFormatter())
+    return _re_codeblock.sub(_highlight_match, html)
+
+
+class Markdown(object):
+
+    def convert(self, text):
+        """
+        Convert markdown text to HTML and run pygments over code
+        """
+        if not text:
+            return ''
+        html = misaka.html(text, misaka.HTML_TOC_TREE | misaka.EXT_FENCED_CODE
+                | misaka.HTML_GITHUB_BLOCKCODE)
+        return highlight_code(html)
 
 
 j = os.path.join
-md = markdown.Markdown(extensions=['toc', 'codehilite'])
+md = Markdown()
 up = lambda p: j(*os.path.split(p)[:-1])
 dirname = lambda p: os.path.basename(os.path.abspath(p))
 
@@ -148,7 +186,8 @@ def _render(title, footer, path, target, page_type, toc=None):
         page_title = title_tag = title
 
     content = pre.format(title_tag=title_tag, project_title=title)
-    content += md.convert(data)
+    if data:
+        content += md.convert(data)
     content += toc or ''
     content += post.format(footer=footer)
 
