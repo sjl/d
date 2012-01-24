@@ -142,3 +142,6 @@ hand-crafted documentation for humans.
 
 No, use a different tool.
 
+### Can I make a "theme" for d?
+
+No, use a different tool.
