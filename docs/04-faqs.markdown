@@ -103,6 +103,21 @@ Not yet, but it's on my radar.
 Writing Tools
 -------------
 
+### How can I preview the documentation locally?
+
+You need a real web server to preview the generated files effectively.  Luckily,
+you already have one: Python comes with a built-in server that's great for
+viewing local files.
+
+Build your docs, then in a separate terminal:
+
+    :::bash
+    cd myproject/docs
+    cd build
+    python -m SimpleHTTPServer
+
+Now open <http://localhost:8000> and view your docs!
+
 ### Can I make d auto-rerender when my files change?
 
 Yes, use [kicker](https://github.com/alloy/kicker) to watch for changes and run
