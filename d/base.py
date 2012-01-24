@@ -38,8 +38,10 @@ CONTENT_PRE = '''\
     <body class="content">
         <div class="wrap">
             <header><h1><a href="..">{project_title}</a></h1></header>
+                <div class="markdown">
 '''
 POST = '''
+                </div>
             <footer>{footer}</footer>
         </div>
     </body>
@@ -116,9 +118,18 @@ def _fix_md_toc(content):
     e('.toc > ul').html(subtoc)
     return unicode(e)
 
+def _linkify_title(content):
+    e = pq(content)
+
+    title = e('.markdown h1').text()
+    e('.markdown h1').html('<a href="">' + title + '</a>')
+
+    return unicode(e)
+
 def _ensure_dir(path):
     if not os.path.isdir(path):
         os.makedirs(path)
+
 
 def _render(title, footer, path, target, page_type, toc=None):
     if page_type == 'index':
@@ -141,7 +152,7 @@ def _render(title, footer, path, target, page_type, toc=None):
     content += post.format(footer=footer)
 
     if page_type == 'content':
-        content = _fix_md_toc(content)
+        content = _linkify_title(_fix_md_toc(content))
 
     if not os.path.isdir(target):
         os.makedirs(target)
@@ -170,6 +181,7 @@ def render_index(title, footer, chapters):
     toc = _get_toc(chapters)
 
     return _render(title, footer, path, target, 'index', toc)
+
 
 def render_files():
     _ensure_dir(BUILD_LOC)
