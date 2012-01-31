@@ -2,7 +2,7 @@ from distutils.core import setup
 
 setup(
     name='d',
-    version='0.1.0',
+    version='0.1.1',
     author='Steve Losh',
     author_email='steve@stevelosh.com',
     packages=['d'],
@@ -10,7 +10,7 @@ setup(
     url='http://sjl.bitbucket.org/d/',
     license='MIT',
     description="Documentation generation that won't make you tear your hair out.",
-    long_description=open('README.markdown').read(),
+    long_description='Read the documentation at http://sjl.bitbucket.org/d/',
     install_requires=[
         'Markdown',
         'pyquery',
