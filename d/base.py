@@ -2,7 +2,6 @@ import sys, os, shutil
 import markdown
 from pyquery import PyQuery as pq
 
-
 j = os.path.join
 md = markdown.Markdown(extensions=['toc', 'codehilite'])
 up = lambda p: j(*os.path.split(p)[:-1])
@@ -50,6 +49,8 @@ POST = '''
 '''
 
 
+
+
 def _get_target_url(path):
     return os.path.split(_get_target(path))[-1]
 
@@ -82,7 +83,7 @@ def _find_chapters():
                 yield filename
 
 def _copy_raw_file(filename):
-    shutil.copyfile(j(up(__file__), filename),
+    shutil.copyfile(j(up(__file__), 'resources', filename),
                     j(BUILD_LOC, '_dmedia', filename))
 
 def _get_footer():
@@ -142,7 +143,11 @@ def _render(title, footer, path, target, page_type, toc=None):
         data = f.read()
 
     if page_type == 'content':
-        page_title = data.splitlines()[0].lstrip('#').strip()
+        try:
+            page_title = data.splitlines()[0].lstrip('#').strip()
+        except IndexError:
+            sys.stdout.write('Documentation file %s must start with a level 1 heading!\n' % path)
+            sys.exit(1)
         title_tag = page_title + ' / ' + title
     else:
         page_title = title_tag = title

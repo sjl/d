@@ -14,5 +14,8 @@ Make some Markdown files.  Run `d`.  Move on.
 
 `d` is open source on [BitBucket][] and [GitHub][].  It's MIT/X11 licensed.
 
+<span class="label important">Warning</span> `d` is still fairly new.  It probably
+won't eat your data, but I'm not making any promises just yet.
+
 [BitBucket]: http://bitbucket.org/sjl/d
 [GitHub]: http://github.com/sjl/d
