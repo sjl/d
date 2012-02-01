@@ -69,6 +69,9 @@ a separate page.
 Every page other than the introduction needs a level 1 heading as the first
 line.  It will be used as the title of the page.
 
+If you don't have a level 1 heading as the first line, `d` will try to guess
+that page title based on the filename.  It may or may not do a good job.
+
 ### Other Headings
 
 There shouldn't be any other level 1 headings.  Levels 2/3/4/5/6 are fine.

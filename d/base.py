@@ -111,26 +111,70 @@ def _get_toc(chapters):
     return toc
 
 def _fix_md_toc(content):
-    """Remove the first heading level from the Markdown-generated TOC."""
+    """Remove the first heading level from the Markdown-generated TOC.
+
+    Only do so if it's on its own, though.
+
+    """
     e = pq(content)
     if not e('.toc'):
+        return content
+
+    lis = e('.toc > ul > li')
+    if len(lis) > 1:
         return content
 
     subtoc = e('.toc > ul > li > ul').html()
     e('.toc > ul').html(subtoc)
     return unicode(e)
 
-def _linkify_title(content):
+def _linkify_title(content, fallback_title):
     e = pq(content)
 
     title = e('.markdown h1').text()
-    e('.markdown h1').html('<a href="">' + title + '</a>')
+    if title:
+        e('.markdown h1').html('<a href="">' + title + '</a>')
+    else:
+        e('.markdown').prepend('<h1><a href="">' + fallback_title + '</a></h1>')
 
     return unicode(e)
 
 def _ensure_dir(path):
     if not os.path.isdir(path):
         os.makedirs(path)
+
+def _get_fallback_title(path):
+    title = path.split('.', 1)[0]
+    if '-' in title and all([c in '0123456789' for c in title.split('-', 1)[0]]):
+        title = title.split('-', 1)[1]
+
+    title = title.replace('-', ' ').replace('_', ' ')
+
+    if title.lower() == title:
+        title = title.capitalize()
+
+    return title
+
+def _find_title(content):
+    # TODO: Make this less ugly.
+    lines = content.splitlines()
+
+    if len(lines) == 0:
+        return None
+    first_line = lines[0].strip()
+
+    if first_line.startswith('#'):
+        return first_line.lstrip('#')
+
+    if len(lines) == 1:
+        return None
+
+    second_line = lines[1].strip()
+
+    if second_line and all(c == '=' for c in second_line):
+        return first_line
+
+    return None
 
 
 def _render(title, footer, path, target, page_type, toc=None):
@@ -142,12 +186,10 @@ def _render(title, footer, path, target, page_type, toc=None):
     with open(path) as f:
         data = f.read()
 
+    fallback_title = _get_fallback_title(path)
+
     if page_type == 'content':
-        try:
-            page_title = data.splitlines()[0].lstrip('#').strip()
-        except IndexError:
-            sys.stdout.write('Documentation file %s must start with a level 1 heading!\n' % path)
-            sys.exit(1)
+        page_title = _find_title(data) or fallback_title
         title_tag = page_title + ' / ' + title
     else:
         page_title = title_tag = title
@@ -158,7 +200,7 @@ def _render(title, footer, path, target, page_type, toc=None):
     content += post.format(footer=footer)
 
     if page_type == 'content':
-        content = _linkify_title(_fix_md_toc(content))
+        content = _linkify_title(_fix_md_toc(content), fallback_title)
 
     if not os.path.isdir(target):
         os.makedirs(target)
