@@ -8,17 +8,39 @@ Maybe not "frequently asked", but hopefully these answers will be useful.
 Should I use d for my project?
 ------------------------------
 
-If you want lots of control over the resulting documentation: no.
+If you want lots of control over the resulting documentation: **no**.
 
-If you want to hook in API docs and such: no.
+If you want to hook in API docs and such: **no**.
 
-If you want to write in something other than Markdown: no.
+If you want to write in something other than Markdown: **no**.
 
 If you have a large project and need more than one level of organization for
-your documentation: no.
+your documentation: **no**.
 
 If you have a small project and want to quickly write some docs that don't look
 like ass: **yes!**
+
+What if I Outgrow d?
+--------------------
+
+If your documentation starts to need some more structure or functionality, you
+can easily switch over to [Sphinx][] in a few minutes:
+
+1. Use [Pandoc][] to convert your Markdown to reStructuredText.  There's
+   a [web-based version][pandocweb] if you don't want to bother building
+   Haskell.
+2. Create a new Sphinx project in the usual manner.
+3. Copy your converted documentation into it.
+4. That's it.
+
+There's nothing tricky about this process because `d` has almost no
+process/configuration of its own.  All you do when using `d` is create pure
+content.  This makes switching to other tools simple a matter of converting this
+content to their preferred format.
+
+[Sphinx]: http://sphinx.pocoo.org/
+[Pandoc]: http://johnmacfarlane.net/pandoc/
+[pandocweb]: http://johnmacfarlane.net/pandoc/try
 
 Web Servers and File Layout
 ---------------------------
