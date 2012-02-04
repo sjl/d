@@ -12,7 +12,7 @@ setup(
     description="Documentation generation that won't make you tear your hair out.",
     long_description='Read the documentation at http://sjl.bitbucket.org/d/',
     install_requires=[
-        'Markdown',
+        'misaka',
         'pyquery',
         'pygments'
     ],
