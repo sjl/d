@@ -7,8 +7,8 @@ md = markdown.Markdown(extensions=['toc', 'codehilite'])
 up = lambda p: j(*os.path.split(p)[:-1])
 dirname = lambda p: os.path.basename(os.path.abspath(p))
 
-SOURCE_LOC = '.'
-BUILD_LOC = './build'
+extensions = ['md', 'mdown', 'markdown']
+
 INDEX_PRE = '''\
 <!DOCTYPE html>
 <html>
@@ -52,57 +52,55 @@ POST = '''
 
 
 
-def _get_target_url(path):
-    return os.path.split(_get_target(path))[-1]
+def _get_target_url(path, destination):
+    return os.path.split(_get_target(path, destination))[-1]
 
-def _get_target(path):
-    parts = path.split('-', 1)
+
+def _get_target(filename, destination):
+    parts = filename.split('-', 1)
 
     if len(parts) > 1 and all(c in '0123456789' for c in parts[0]):
-        target = parts[1]
-    else:
-        target = path
+        filename = parts[1]
 
-    return j(BUILD_LOC, target.rsplit(SOURCE_LOC, 1)[0])
+    return j(destination, filename.rsplit('.', 1)[0])
 
-def _get_project_title():
-    if os.path.isfile('title'):
-        with open('title') as f:
+
+def _get_project_title(source):
+    if os.path.isfile(j(source, 'title')):
+        with open(j(source, 'title')) as f:
             return f.read().strip()
     else:
-        current = dirname(SOURCE_LOC).lower()
+        current = dirname(source).lower()
         if current not in ['doc', 'docs', 'documentation']:
             return current
         else:
-            return dirname(j(SOURCE_LOC, '..')).lower()
+            return dirname(j(source, '..')).lower()
 
-def _find_chapters():
-    for filename in os.listdir(SOURCE_LOC):
+def _find_chapters(source):
+    for filename in os.listdir(source):
         name, ext = os.path.splitext(filename)
-        if ext in ['.markdown', '.md', '.mdown']:
+        if ext[1:] in extensions:
             if name not in ['footer', 'index']:
                 yield filename
 
 
-def _get_footer():
-    if os.path.isfile('./footer.markdown'):
-        with open('./footer.markdown') as f:
-            return md.convert(f.read())
-    elif os.path.isfile('./footer.mdown'):
-        with open('./footer.mdown') as f:
-            return md.convert(f.read())
-    elif os.path.isfile('./footer.md'):
-        with open('./footer.md') as f:
-            return md.convert(f.read())
-    else:
-        return ''
+def _get_footer(source):
+    for ext in extensions:
+        filename = 'footer.' + ext
+        target = j(source, filename);
+        if os.path.isfile(target):
+            with open(target) as f:
+                return md.convert(f.read())
 
-def _get_toc(chapters):
+    return ''
+
+
+def _get_toc(chapters, destination):
     toc = '<h2>Table of Contents</h2>'
     toc += '<ol class="toc">'
 
     for filename, title in chapters:
-        toc += '<li><a href="%s/">%s</a></li>' % (_get_target_url(filename), title)
+        toc += '<li><a href="%s/">%s</a></li>' % (_get_target_url(filename, destination), title)
 
     toc += '</ol>'
 
@@ -142,7 +140,7 @@ def _ensure_dir(path):
         os.makedirs(path)
 
 def _get_fallback_title(path):
-    title = path.split(SOURCE_LOC, 1)[0]
+    title = path.split('.', 1)[0]
     if '-' in title and all([c in '0123456789' for c in title.split('-', 1)[0]]):
         title = title.split('-', 1)[1]
 
@@ -175,16 +173,11 @@ def _find_title(content):
     return None
 
 
-def _render(title, footer, path, target, page_type, toc=None):
-    if page_type == 'index':
-        pre, post = INDEX_PRE, POST
-    else:
-        pre, post = CONTENT_PRE, POST
-
-    with open(path) as f:
+def _render(title, header, footer, source, destination, page_type, toc=None):
+    with open(source) as f:
         data = f.read()
 
-    fallback_title = _get_fallback_title(path)
+    fallback_title = _get_fallback_title(source)
 
     if page_type == 'content':
         page_title = _find_title(data) or fallback_title
@@ -192,60 +185,53 @@ def _render(title, footer, path, target, page_type, toc=None):
     else:
         page_title = title_tag = title
 
-    content = pre.format(title_tag=title_tag, project_title=title)
+    content = header.format(title_tag=title_tag, project_title=title)
     content += md.convert(data)
     content += toc or ''
-    content += post.format(footer=footer)
+    content += POST.format(footer=footer)
 
     if page_type == 'content':
         content = _linkify_title(_fix_md_toc(content), fallback_title)
 
-    if not os.path.isdir(target):
-        os.makedirs(target)
+    if not os.path.isdir(destination):
+        os.makedirs(destination)
 
-    with open(j(target, 'index.html'), 'w') as f:
+    with open(j(destination, 'index.html'), 'w') as f:
         f.write(content)
 
     return page_title
 
 
-def render_chapter(title, footer, path):
-    target = _get_target(path)
-    return _render(title, footer, path, target, 'content')
+def render_index(title, footer, chapters, source, destination):
+    index_file = None
+    for ext in extensions:
+        filename = 'index.' + ext
+        if os.path.isfile(j(source, filename)):
+            index_file = j(source, filename)
 
-def render_index(title, footer, chapters):
-    if os.path.isfile('index.markdown'):
-        path = 'index.markdown'
-    elif os.path.isfile('index.mdown'):
-        path = 'index.mdown'
-    elif os.path.isfile('index.md'):
-        path = 'index.md'
-    else:
+    if index_file is None:
         return
 
-    target = BUILD_LOC
-    toc = _get_toc(chapters)
+    toc = _get_toc(chapters, destination)
 
-    return _render(title, footer, path, target, 'index', toc)
+    return _render(title, INDEX_PRE, footer, index_file, destination, 'index', toc)
 
 
 def render_files(source, destination):
-    SOURCE_LOC = source
-    BUILD_LOC = destination
+    _ensure_dir(destination)
+    _ensure_dir(j(destination, '_dmedia'))
 
-    _ensure_dir(BUILD_LOC)
-    _ensure_dir(j(BUILD_LOC, '_dmedia'))
-
-    title = _get_project_title()
-    footer = _get_footer()
+    title = _get_project_title(source)
+    footer = _get_footer(source)
 
     resources = j(up(__file__), 'resources')
     for filename in os.listdir(resources):
         shutil.copyfile(j(resources, filename), j(destination, '_dmedia', filename))
 
     chapters = []
-    for filename in _find_chapters():
-        chapter_title = render_chapter(title, footer, filename)
+    for filename in _find_chapters(source):
+        chapter_title = _render(title, CONTENT_PRE, footer,
+                j(source, filename), _get_target(filename, destination), 'content')
         chapters.append((filename, chapter_title))
 
-    render_index(title, footer, chapters)
+    render_index(title, footer, chapters, source, destination)
