@@ -240,7 +240,7 @@ def render_files(source, destination):
     footer = _get_footer()
 
     resources = j(up(__file__), 'resources')
-    for filename in os.listdir(j(up(__file__), 'resources')):
+    for filename in os.listdir(resources):
         shutil.copyfile(j(resources, filename), j(destination, '_dmedia', filename))
 
     chapters = []
