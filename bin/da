@@ -10,9 +10,8 @@ except ImportError:
     from d.base import render_files
 
 if __name__ == '__main__':
-    if len(sys.argv) > 1:
-        sys.stderr.write("d doesn't take any arguments.\n")
-        sys.stderr.write("Just cd into your docs/ directory, run d, and move on.\n")
+    if len(sys.argv) < 3:
+        sys.stderr.write("da requires 2 arguments: da SOURCE DESTINATION\n")
         sys.exit(1)
     else:
-        render_files('.', './build')
+        render_files(sys.argv[1], sys.argv[2])

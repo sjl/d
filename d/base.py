@@ -232,7 +232,10 @@ def render_index(title, footer, chapters):
     return _render(title, footer, path, target, 'index', toc)
 
 
-def render_files():
+def render_files(source, destination):
+    SOURCE_LOC = source
+    BUILD_LOC = destination
+
     _ensure_dir(BUILD_LOC)
     _ensure_dir(j(BUILD_LOC, '_dmedia'))
 
@@ -247,12 +250,3 @@ def render_files():
         chapters.append((filename, chapter_title))
 
     render_index(title, footer, chapters)
-
-
-def main():
-    if len(sys.argv) > 1:
-        sys.stderr.write("d doesn't take any arguments.\n")
-        sys.stderr.write("Just cd into your docs/ directory, run d, and move on.\n")
-        sys.exit(1)
-    else:
-        render_files()
