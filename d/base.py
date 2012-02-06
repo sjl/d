@@ -7,6 +7,7 @@ md = markdown.Markdown(extensions=['toc', 'codehilite'])
 up = lambda p: j(*os.path.split(p)[:-1])
 dirname = lambda p: os.path.basename(os.path.abspath(p))
 
+SOURCE_LOC = '.'
 BUILD_LOC = './build'
 INDEX_PRE = '''\
 <!DOCTYPE html>
@@ -62,21 +63,21 @@ def _get_target(path):
     else:
         target = path
 
-    return j(BUILD_LOC, target.rsplit('.', 1)[0])
+    return j(BUILD_LOC, target.rsplit(SOURCE_LOC, 1)[0])
 
 def _get_project_title():
     if os.path.isfile('title'):
         with open('title') as f:
             return f.read().strip()
     else:
-        current = dirname('.').lower()
+        current = dirname(SOURCE_LOC).lower()
         if current not in ['doc', 'docs', 'documentation']:
             return current
         else:
-            return dirname('..').lower()
+            return dirname(j(SOURCE_LOC, '..')).lower()
 
 def _find_chapters():
-    for filename in os.listdir('.'):
+    for filename in os.listdir(SOURCE_LOC):
         name, ext = os.path.splitext(filename)
         if ext in ['.markdown', '.md', '.mdown']:
             if name not in ['footer', 'index']:
@@ -144,7 +145,7 @@ def _ensure_dir(path):
         os.makedirs(path)
 
 def _get_fallback_title(path):
-    title = path.split('.', 1)[0]
+    title = path.split(SOURCE_LOC, 1)[0]
     if '-' in title and all([c in '0123456789' for c in title.split('-', 1)[0]]):
         title = title.split('-', 1)[1]
 
