@@ -83,9 +83,6 @@ def _find_chapters():
             if name not in ['footer', 'index']:
                 yield filename
 
-def _copy_raw_file(filename):
-    shutil.copyfile(j(up(__file__), 'resources', filename),
-                    j(BUILD_LOC, '_dmedia', filename))
 
 def _get_footer():
     if os.path.isfile('./footer.markdown'):
@@ -242,7 +239,9 @@ def render_files(source, destination):
     title = _get_project_title()
     footer = _get_footer()
 
-    map(_copy_raw_file, ['bootstrap.css', 'style.less', 'less.js', 'tango.css'])
+    resources = j(up(__file__), 'resources')
+    for filename in os.listdir(j(up(__file__), 'resources')):
+        shutil.copyfile(j(resources, filename), j(destination, '_dmedia', filename))
 
     chapters = []
     for filename in _find_chapters():
