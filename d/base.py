@@ -8,36 +8,16 @@ up = lambda p: j(*os.path.split(p)[:-1])
 dirname = lambda p: os.path.basename(os.path.abspath(p))
 
 BUILD_LOC = './build'
-INDEX_PRE = '''\
+PRE = '''\
 <!DOCTYPE html>
 <html>
     <head>
         <title>{title_tag}</title>
-        <link rel="stylesheet" href="./_dmedia/bootstrap.css"/>
-        <link rel="stylesheet" href="./_dmedia/tango.css"/>
-        <link rel="stylesheet/less" type="text/css" href="./_dmedia/style.less">
-        <script src="./_dmedia/less.js" type="text/javascript">
-        </script>
+        {resources}
     </head>
-    <body class="index">
+    <body class="{page_type}">
         <div class="wrap">
-            <header><h1><a href="">{project_title}</a></h1></header>
-                <div class="markdown">
-'''
-CONTENT_PRE = '''\
-<!DOCTYPE html>
-<html>
-    <head>
-        <title>{title_tag}</title>
-        <link rel="stylesheet" href="../_dmedia/bootstrap.css"/>
-        <link rel="stylesheet" href="../_dmedia/tango.css"/>
-        <link rel="stylesheet/less" type="text/css" href="../_dmedia/style.less">
-        <script src="../_dmedia/less.js" type="text/javascript">
-        </script>
-    </head>
-    <body class="content">
-        <div class="wrap">
-            <header><h1><a href="..">{project_title}</a></h1></header>
+            <header><h1><a href="{project_href}">{project_title}</a></h1></header>
                 <div class="markdown">
 '''
 POST = '''
@@ -48,7 +28,16 @@ POST = '''
 </html>
 '''
 
-
+CSS = '''\
+        <link rel="stylesheet" href="{dots}/_dmedia/{resource}"/>
+'''
+LESS = '''\
+        <link rel="stylesheet/less" type="text/css" href="{dots}/_dmedia/{resource}">
+'''
+JS = '''\
+        <script src="{dots}/_dmedia/{resource}" type="text/javascript">
+        </script>
+'''
 
 
 def _get_target_url(path):
@@ -82,8 +71,14 @@ def _find_chapters():
             if name not in ['footer', 'index']:
                 yield filename
 
-def _copy_raw_file(filename):
+def _copy_base_file(filename):
+    """Copies files from the d resources directory into _dmedia """
     shutil.copyfile(j(up(__file__), 'resources', filename),
+                    j(BUILD_LOC, '_dmedia', filename))
+
+def _copy_resource_file(filename):
+    """Copies files from the current resources directory into _dmedia """
+    shutil.copyfile(j('.', 'resources', filename),
                     j(BUILD_LOC, '_dmedia', filename))
 
 def _get_footer():
@@ -176,12 +171,36 @@ def _find_title(content):
 
     return None
 
+def _render_resources(resources, page_type):
+    """ Generates html for the given resources based on each resource's
+    extension
+    """
 
-def _render(title, footer, path, target, page_type, toc=None):
+    # link to the correct folder
+    dots = '..'
     if page_type == 'index':
-        pre, post = INDEX_PRE, POST
-    else:
-        pre, post = CONTENT_PRE, POST
+        dots = '.'
+    
+    css, less, js = CSS, LESS, JS
+
+    css_str = str()
+    less_str = str()
+    js_str = str()
+    for filename in resources:
+        name, ext = os.path.splitext(filename)
+        if ext == '.css':
+            css_str += css.format(dots=dots, resource=filename)
+        elif ext == '.less':
+            less_str += less.format(dots=dots, resource=filename)
+        elif ext == '.js':
+            js_str += js.format(dots=dots, resource=filename)
+
+    res_str = css_str + less_str + js_str
+    return res_str.strip()
+
+
+def _render(title, footer, path, target, resources, page_type, toc=None):
+    pre, post = PRE, POST
 
     with open(path) as f:
         data = f.read()
@@ -191,16 +210,26 @@ def _render(title, footer, path, target, page_type, toc=None):
     if page_type == 'content':
         page_title = _find_title(data) or fallback_title
         title_tag = page_title + ' / ' + title
+        href = '..'
     else:
         page_title = title_tag = title
+        href = ''
 
-    content = pre.format(title_tag=title_tag, project_title=title)
+    content_resources = _render_resources(resources, page_type)
+
+    content = pre.format(title_tag=title_tag,
+            resources=content_resources,
+            project_href=href,
+            project_title=title,
+            page_type=page_type)
     content += md.convert(data)
     content += toc or ''
     content += post.format(footer=footer)
 
     if page_type == 'content':
         content = _linkify_title(_fix_md_toc(content), fallback_title)
+        # this is gobbling up the DOCTYPE line for some reason.
+        content = "<!DOCTYPE html>\n" + content 
 
     if not os.path.isdir(target):
         os.makedirs(target)
@@ -211,11 +240,11 @@ def _render(title, footer, path, target, page_type, toc=None):
     return page_title
 
 
-def render_chapter(title, footer, path):
+def render_chapter(title, footer, path, resources):
     target = _get_target(path)
-    return _render(title, footer, path, target, 'content')
+    return _render(title, footer, path, target, resources, 'content')
 
-def render_index(title, footer, chapters):
+def render_index(title, footer, chapters, resources):
     if os.path.isfile('index.markdown'):
         path = 'index.markdown'
     elif os.path.isfile('index.mdown'):
@@ -228,8 +257,7 @@ def render_index(title, footer, chapters):
     target = BUILD_LOC
     toc = _get_toc(chapters)
 
-    return _render(title, footer, path, target, 'index', toc)
-
+    return _render(title, footer, path, target, resources, 'index', toc)
 
 def render_files():
     _ensure_dir(BUILD_LOC)
@@ -238,14 +266,20 @@ def render_files():
     title = _get_project_title()
     footer = _get_footer()
 
-    map(_copy_raw_file, ['bootstrap.css', 'style.less', 'less.js', 'tango.css'])
+    resources = [x for x in os.listdir('./resources')]
+
+    if len(resources) > 0:
+        [_copy_resource_file(x) for x in resources]
+    else:
+        resources = ['bootstrap.css', 'style.less', 'less.js', 'tango.css']
+        [_copy_base_file(x) for x in resources]
 
     chapters = []
     for filename in _find_chapters():
-        chapter_title = render_chapter(title, footer, filename)
+        chapter_title = render_chapter(title, footer, filename, resources)
         chapters.append((filename, chapter_title))
 
-    render_index(title, footer, chapters)
+    render_index(title, footer, chapters, resources)
 
 
 def main():
