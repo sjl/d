@@ -266,7 +266,9 @@ def render_files():
     title = _get_project_title()
     footer = _get_footer()
 
-    resources = [x for x in os.listdir('./resources')]
+    resources = []
+    if os.path.isdir('./resources'):
+        resources = [x for x in os.listdir('./resources')]
 
     if len(resources) > 0:
         [_copy_resource_file(x) for x in resources]
