@@ -269,6 +269,7 @@ def render_files():
     resources = []
     if os.path.isdir('./resources'):
         resources = [x for x in os.listdir('./resources')]
+        resources.sort()
 
     if len(resources) > 0:
         [_copy_resource_file(x) for x in resources]
