@@ -8,6 +8,9 @@ up = lambda p: j(*os.path.split(p)[:-1])
 dirname = lambda p: os.path.basename(os.path.abspath(p))
 
 BUILD_LOC = './build'
+CUSTOM_PATH = './resources'
+BASE_PATH = j(up(__file__), 'resources')
+
 PRE = '''\
 <!DOCTYPE html>
 <html>
@@ -64,6 +67,41 @@ def _get_project_title():
         else:
             return dirname('..').lower()
 
+def _get_resources():
+    base_resources = []
+    if os.path.isdir(BASE_PATH):
+        base_resources = [x for x in os.listdir(BASE_PATH)]
+        base_resources.sort()
+        # do not copy, may not need.
+
+    custom_resources = []
+    if os.path.isdir(CUSTOM_PATH):
+        custom_resources = [x for x in os.listdir(CUSTOM_PATH)]
+        custom_resources.sort()
+
+        if all(os.path.isfile(j(CUSTOM_PATH, x)) for x in custom_resources):
+            # all are files, everything is legit.
+            [_copy_raw_file(CUSTOM_PATH, x) for x in custom_resources]
+        else:
+            raise Exception('Custom resources with subdirectories unsupported')
+
+    resources = []
+    if any((os.path.splitext(r)[1] == '.css'
+         or os.path.splitext(r)[1] == '.less') for r in custom_resources):
+        # there are css or less files, only use those.
+        resources = custom_resources
+
+    else:
+        # need base resources, no css or less files in custom_resources
+        # but first, make sure no files share the same name. such as .js files.
+        if any(cr in base_resources for cr in custom_resources) :
+            raise Exception('Need base file, but custom one detected')
+
+        [_copy_raw_file(BASE_PATH, x) for x in base_resources]
+        resources = base_resources + custom_resources
+
+    return resources
+
 def _find_chapters():
     for filename in os.listdir('.'):
         name, ext = os.path.splitext(filename)
@@ -71,14 +109,8 @@ def _find_chapters():
             if name not in ['footer', 'index']:
                 yield filename
 
-def _copy_base_file(filename):
-    """Copies files from the d resources directory into _dmedia """
-    shutil.copyfile(j(up(__file__), 'resources', filename),
-                    j(BUILD_LOC, '_dmedia', filename))
-
-def _copy_resource_file(filename):
-    """Copies files from the current resources directory into _dmedia """
-    shutil.copyfile(j('.', 'resources', filename),
+def _copy_raw_file(path, filename):
+    shutil.copyfile(j(path, filename),
                     j(BUILD_LOC, '_dmedia', filename))
 
 def _get_footer():
@@ -180,7 +212,7 @@ def _render_resources(resources, page_type):
     dots = '..'
     if page_type == 'index':
         dots = '.'
-    
+
     css, less, js = CSS, LESS, JS
 
     css_str = str()
@@ -229,7 +261,7 @@ def _render(title, footer, path, target, resources, page_type, toc=None):
     if page_type == 'content':
         content = _linkify_title(_fix_md_toc(content), fallback_title)
         # this is gobbling up the DOCTYPE line for some reason.
-        content = "<!DOCTYPE html>\n" + content 
+        content = "<!DOCTYPE html>\n" + content
 
     if not os.path.isdir(target):
         os.makedirs(target)
@@ -265,17 +297,7 @@ def render_files():
 
     title = _get_project_title()
     footer = _get_footer()
-
-    resources = []
-    if os.path.isdir('./resources'):
-        resources = [x for x in os.listdir('./resources')]
-        resources.sort()
-
-    if len(resources) > 0:
-        [_copy_resource_file(x) for x in resources]
-    else:
-        resources = ['bootstrap.css', 'style.less', 'less.js', 'tango.css']
-        [_copy_base_file(x) for x in resources]
+    resources = _get_resources()
 
     chapters = []
     for filename in _find_chapters():
