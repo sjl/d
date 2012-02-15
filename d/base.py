@@ -100,7 +100,29 @@ def _get_resources():
         [_copy_raw_file(BASE_PATH, x) for x in base_resources]
         resources = base_resources + custom_resources
 
-    return resources
+    return _sort_resources(resources)
+
+def _sort_resources(resources):
+    """ Sorts resources list by file extension.
+    Ensures order of: css, less, js, and then other files.
+    """
+    css = []
+    less = []
+    js = []
+    other = []
+
+    for filename in resources:
+        name, ext = os.path.splitext(filename)
+        if ext == '.css':
+            css.append(filename)
+        elif ext == '.less':
+            less.append(filename)
+        elif ext == '.js':
+            js.append(filename)
+        else:
+            other.add(filename)
+
+    return css + less + js + other
 
 def _find_chapters():
     for filename in os.listdir('.'):
