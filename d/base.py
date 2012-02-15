@@ -120,7 +120,7 @@ def _sort_resources(resources):
         elif ext == '.js':
             js.append(filename)
         else:
-            other.add(filename)
+            other.append(filename)
 
     return css + less + js + other
 
