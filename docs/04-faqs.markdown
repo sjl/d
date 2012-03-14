@@ -147,9 +147,7 @@ Yes, use [kicker](https://github.com/alloy/kicker) to watch for changes and run
 
 ### Kicker is only for OS X, what about Linux?
 
-I haven't found a tool like kicker for Linux, sorry.
-
-Let me know if you write one -- I've wanted it for a while now.
+[This method](http://exyr.org/2011/inotify-run/) works pretty well.
 
 ### Can I write in something other than Markdown?
 
