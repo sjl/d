@@ -77,7 +77,7 @@ def _get_project_title(source):
             return dirname(j(source, '..')).lower()
 
 def _find_chapters(source):
-    for filename in os.listdir(source):
+    for filename in sorted(os.listdir(source)):
         name, ext = os.path.splitext(filename)
         if ext[1:] in extensions:
             if name not in ['footer', 'index']:
