@@ -3,11 +3,12 @@ d
 
 [Read the docs](http://sjl.bitbucket.org/d/).
 
-This fork, when I get to tweaking, will fix a chapter sorting problem I have on Ubuntu.  os.listdir sorts by inode when
-a unix ls sort is wanted.  
+os.listdir sorts by inode where a unix ls sort is wanted.  
 
-http://www.znasibov.info/blog/post/inside-python-understanding-os-listdir.html has a code block to
+http://www.znasibov.info/blog/post/inside-python-understanding-os-listdir.html has code to
 adapt for a fix.
+
+Fix in base: `os.listdir(src)` becomes `sorted(os.listdir(src))` .
 
 
 
