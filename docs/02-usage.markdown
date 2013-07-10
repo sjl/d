@@ -15,7 +15,7 @@ Make a directory for your docs:
     mkdir docs
     cd docs
 
-Write some docs:
+Write some docs (UTF-8):
 
     :::bash
     touch index.markdown

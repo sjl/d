@@ -13,6 +13,7 @@ INDEX_PRE = '''\
 <!DOCTYPE html>
 <html>
     <head>
+        <meta charset="utf-8" />
         <title>{title_tag}</title>
         <link rel="stylesheet" href="./_dmedia/bootstrap.css"/>
         <link rel="stylesheet" href="./_dmedia/tango.css"/>
@@ -29,6 +30,7 @@ CONTENT_PRE = '''\
 <!DOCTYPE html>
 <html>
     <head>
+        <meta charset="utf-8" />
         <title>{title_tag}</title>
         <link rel="stylesheet" href="../_dmedia/bootstrap.css"/>
         <link rel="stylesheet" href="../_dmedia/tango.css"/>
@@ -51,6 +53,12 @@ POST = '''
 
 
 
+def _read(f):
+    return f.read().decode('utf-8')
+
+def _write(f, content):
+    return f.write(content.encode('utf-8'))
+
 
 def _get_target_url(path, destination):
     return os.path.split(_get_target(path, destination))[-1]
@@ -68,7 +76,7 @@ def _get_target(filename, destination):
 def _get_project_title(source):
     if os.path.isfile(j(source, 'title')):
         with open(j(source, 'title')) as f:
-            return f.read().strip()
+            return _read(f).strip()
     else:
         current = dirname(source).lower()
         if current not in ['doc', 'docs', 'documentation']:
@@ -90,7 +98,7 @@ def _get_footer(source):
         target = j(source, filename);
         if os.path.isfile(target):
             with open(target) as f:
-                return md.convert(f.read())
+                return md.convert(_read(f))
 
     return ''
 
@@ -133,7 +141,8 @@ def _linkify_title(content, fallback_title):
     else:
         e('.markdown').prepend('<h1><a href="">' + fallback_title + '</a></h1>')
 
-    return unicode(e)
+    # What the fuck, pyquery?
+    return u'<!DOCTYPE html>\n' + unicode(e)
 
 def _ensure_dir(path):
     if not os.path.isdir(path):
@@ -175,7 +184,7 @@ def _find_title(content):
 
 def _render(title, header, footer, source, destination, page_type, toc=None):
     with open(source) as f:
-        data = f.read()
+        data = _read(f)
 
     fallback_title = _get_fallback_title(source)
 
@@ -197,7 +206,7 @@ def _render(title, header, footer, source, destination, page_type, toc=None):
         os.makedirs(destination)
 
     with open(j(destination, 'index.html'), 'w') as f:
-        f.write(content)
+        _write(f, content)
 
     return page_title
 
