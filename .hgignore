@@ -11,3 +11,4 @@ docs/build
 MANIFEST
 build/
 dist/
+d.egg-info
