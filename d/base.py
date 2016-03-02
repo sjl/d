@@ -9,7 +9,7 @@ dirname = lambda p: os.path.basename(os.path.abspath(p))
 
 extensions = ['md', 'mdown', 'markdown']
 
-INDEX_PRE = '''\
+INDEX_PRE = u'''\
 <!DOCTYPE html>
 <html>
     <head>
@@ -26,7 +26,7 @@ INDEX_PRE = '''\
             <header><h1><a href="">{project_title}</a></h1></header>
                 <div class="markdown">
 '''
-CONTENT_PRE = '''\
+CONTENT_PRE = u'''\
 <!DOCTYPE html>
 <html>
     <head>
@@ -43,7 +43,7 @@ CONTENT_PRE = '''\
             <header><h1><a href="..">{project_title}</a></h1></header>
                 <div class="markdown">
 '''
-POST = '''
+POST = u'''
                 </div>
             <footer>{footer}</footer>
         </div>
