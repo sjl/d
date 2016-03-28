@@ -15,7 +15,6 @@ INDEX_PRE = u'''\
     <head>
         <meta charset="utf-8" />
         <title>{title_tag}</title>
-        <link rel="stylesheet" href="./_dmedia/bootstrap.css"/>
         <link rel="stylesheet" href="./_dmedia/tango.css"/>
         <link rel="stylesheet/less" type="text/css" href="./_dmedia/style.less">
         <script src="./_dmedia/less.js" type="text/javascript">
@@ -32,7 +31,6 @@ CONTENT_PRE = u'''\
     <head>
         <meta charset="utf-8" />
         <title>{title_tag}</title>
-        <link rel="stylesheet" href="../_dmedia/bootstrap.css"/>
         <link rel="stylesheet" href="../_dmedia/tango.css"/>
         <link rel="stylesheet/less" type="text/css" href="../_dmedia/style.less">
         <script src="../_dmedia/less.js" type="text/javascript">
