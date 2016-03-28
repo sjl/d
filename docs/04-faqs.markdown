@@ -142,12 +142,7 @@ Now open <http://localhost:8000> and view your docs!
 
 ### Can I make d auto-rerender when my files change?
 
-Yes, use [kicker](https://github.com/alloy/kicker) to watch for changes and run
-`d`.
-
-### Kicker is only for OS X, what about Linux?
-
-[This method](http://exyr.org/2011/inotify-run/) works pretty well.
+Yes, use [peat](https://github.com/sjl/peat) to watch for changes and run `d`.
 
 ### Can I write in something other than Markdown?
 
