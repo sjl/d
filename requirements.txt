@@ -1,3 +1,5 @@
 Markdown
 pygments
 pyquery
+jsonschema
+mistune
