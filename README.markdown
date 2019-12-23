@@ -1,4 +1,4 @@
 d
 =
 
-[Read the docs](http://sjl.bitbucket.org/d/).
+[Read the docs](https://docs.stevelosh.com/d/).

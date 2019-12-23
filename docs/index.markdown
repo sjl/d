@@ -9,7 +9,7 @@ obtuse markup, or multiple output formats.
 
 Make some Markdown files.  Run `d`.  Move on.
 
-`d` is open source on [BitBucket][] and [GitHub][].  It's MIT/X11 licensed.
+`d` is open source on [Source Hut][] and [GitHub][].  It's MIT/X11 licensed.
 
-[BitBucket]: http://bitbucket.org/sjl/d
+[Source Hut]: https://hg.sr.ht/~sjl/d
 [GitHub]: http://github.com/sjl/d

@@ -7,10 +7,10 @@ setup(
     author_email='steve@stevelosh.com',
     packages=['d'],
     scripts=['bin/d'],
-    url='http://sjl.bitbucket.org/d/',
+    url='https://docs.stevelosh.com/d/',
     license='MIT',
     description="Documentation generation that won't make you tear your hair out.",
-    long_description='Read the documentation at http://sjl.bitbucket.org/d/',
+    long_description='Read the documentation at https://docs.stevelosh.com/d/',
     install_requires=[
         'Markdown',
         'pyquery',
