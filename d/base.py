@@ -235,6 +235,13 @@ def render_files(source, destination):
     for filename in os.listdir(resources):
         shutil.copyfile(j(resources, filename), j(destination, '_dmedia', filename))
 
+    static_source = j(source, 'static')
+    if os.path.isdir(static_source):
+        static_destination = j(destination, 'static')
+        if os.path.isdir(static_destination):
+            shutil.rmtree(static_destination)
+        shutil.copytree(static_source, static_destination)
+
     chapters = []
     for filename in _find_chapters(source):
         chapter_title = _render(title, CONTENT_PRE, footer,

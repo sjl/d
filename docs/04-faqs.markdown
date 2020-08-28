@@ -98,9 +98,19 @@ Page Content
 Sure.  Remember that Markdown lets you add raw HTML anywhere.  Just put the HTML
 in `footer.markdown` and you're all set.
 
-### Can I add media?
+### Can I add static assets/media?
 
-Not yet, but it's on my radar.
+Yes, if there's a directory named `static` in your documentation source
+directory it will be copied into the output.
+
+For example, you could have `static/foo.png` in your documentation directory and
+then put the following into your Markdown:
+
+    ![A picture of the elusive Foo](../static/foo.png)
+
+If you want to linkify the image, Just Use Markdown™:
+
+    [![A picture of the elusive Foo](../static/foo.png)](../static/foo.png)
 
 ### Can I display a table of contents for a single page?
 
