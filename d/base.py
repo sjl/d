@@ -9,7 +9,7 @@ dirname = lambda p: os.path.basename(os.path.abspath(p))
 
 extensions = ['md', 'mdown', 'markdown']
 
-INDEX_PRE = u'''\
+INDEX_PRE = '''\
 <!DOCTYPE html>
 <html>
     <head>
@@ -25,7 +25,7 @@ INDEX_PRE = u'''\
             <header><h1><a href="">{project_title}</a></h1></header>
                 <div class="markdown">
 '''
-CONTENT_PRE = u'''\
+CONTENT_PRE = '''\
 <!DOCTYPE html>
 <html>
     <head>
@@ -41,7 +41,7 @@ CONTENT_PRE = u'''\
             <header><h1><a href="..">{project_title}</a></h1></header>
                 <div class="markdown">
 '''
-POST = u'''
+POST = '''
                 </div>
             <footer>{footer}</footer>
         </div>
@@ -52,10 +52,10 @@ POST = u'''
 
 
 def _read(f):
-    return f.read().decode('utf-8')
+    return f.read()
 
 def _write(f, content):
-    return f.write(content.encode('utf-8'))
+    return f.write(content)
 
 
 def _get_target_url(path, destination):
@@ -128,7 +128,7 @@ def _fix_md_toc(content):
 
     subtoc = e('.toc > ul > li > ul').html()
     e('.toc > ul').html(subtoc)
-    return unicode(e)
+    return e
 
 def _linkify_title(content, fallback_title):
     e = pq(content)
@@ -140,7 +140,7 @@ def _linkify_title(content, fallback_title):
         e('.markdown').prepend('<h1><a href="">' + fallback_title + '</a></h1>')
 
     # What the fuck, pyquery?
-    return u'<!DOCTYPE html>\n' + unicode(e)
+    return '<!DOCTYPE html>\n' + e.html()
 
 def _ensure_dir(path):
     if not os.path.isdir(path):

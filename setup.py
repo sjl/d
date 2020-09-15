@@ -3,6 +3,7 @@ from setuptools import setup
 setup(
     name='d',
     version='0.2.2',
+    python_requires='>=3',
     author='Steve Losh',
     author_email='steve@stevelosh.com',
     packages=['d'],
